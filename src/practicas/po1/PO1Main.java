@@ -22,7 +22,7 @@ public class PO1Main {
         Instances instances = loadInstances(dataPath);
         instances.randomize(new Random(1));
         instances.setClassIndex(instances.numAttributes() - 1);
-//        System.out.println(getInfo(instances));
+        System.out.println(getInfo(instances));
 
         // 2) Filter attributes
         Instances newData = filterAttributes(instances);

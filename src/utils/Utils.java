@@ -79,6 +79,25 @@ public class Utils {
             result.append(instances.classAttribute().toString());
         }
         result.append("\n");
+        result.append("\n");
+
+        for (int i = 0; i < instances.numAttributes(); i++) {
+            String stats = instances.attributeStats(i).toString();
+            result.append(instances.attribute(i).name());
+            result.append("\n");
+            result.append(stats);
+            if (instances.attribute(i).isNumeric()) {
+                result.append("Max: " + instances.attributeStats(i).numericStats.max);
+                result.append("\n");
+                result.append("Min: " + instances.attributeStats(i).numericStats.min);
+                result.append("\n");
+                result.append("Mean: " + instances.attributeStats(i).numericStats.mean);
+                result.append("\n");
+                result.append("StdDev: " + instances.attributeStats(i).numericStats.stdDev);
+                result.append("\n");
+            }
+            result.append("\n");
+        }
 
         return result.toString();
     }
