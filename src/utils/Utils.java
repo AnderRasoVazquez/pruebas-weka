@@ -175,6 +175,21 @@ public class Utils {
 
 
     /**
+     * Evaluacion NO honesta. Se entrena y evalua sobre el conjunto completo de datos.
+     * @param cls
+     * @param instances
+     * @return
+     * @throws Exception
+     */
+    public static Evaluation noHonestEval(Classifier cls, Instances instances) throws Exception {
+        cls.buildClassifier(instances);
+        Evaluation evaluation = new Evaluation(instances);
+        evaluation.evaluateModel(cls, instances);
+        return evaluation;
+    }
+
+
+    /**
      * Parte un dataset.
      * @param percent por donde partirlo.
      * @param instances el dataset a partir.
