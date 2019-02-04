@@ -145,6 +145,20 @@ public class Utils {
 
 
     /**
+     * Leave one out es crossvalidation con k=numero de instancias.
+     * @param cls el clasificador.
+     * @param instances las instancias.
+     * @return
+     * @throws Exception
+     */
+    public static Evaluation leaveOneOut(Classifier cls, Instances instances) throws Exception {
+        Evaluation evaluation = new Evaluation(instances);
+        evaluation.crossValidateModel(cls, instances, instances.size(), new Random(1));
+        return evaluation;
+    }
+
+
+    /**
      * Hace una evaluacion hold out.
      * @param cls
      * @param train
