@@ -1,19 +1,20 @@
 package utils;
 
-import weka.core.converters.ConverterUtils.DataSource;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+
 import weka.core.Attribute;
 import weka.core.Instances;
-
 import weka.core.SerializationHelper;
 import weka.core.converters.ConverterUtils.DataSink;
+import weka.core.converters.ConverterUtils.DataSource;
 
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
+import weka.filters.unsupervised.instance.Resample;
+
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
-import weka.filters.unsupervised.instance.Resample;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
