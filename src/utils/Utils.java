@@ -28,25 +28,9 @@ public class Utils {
      * @param path la ruta de donde coger las instancias
      * @return
      */
-    public static Instances loadInstances(String path) {
-        DataSource source = null;
-        try {
-            source = new DataSource(path);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("ERROR: el archivo no se ha encontrado");
-        }
-
-        Instances instances = null;
-        try {
-            assert source != null;
-            instances = source.getDataSet();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("ERROR: no se han podido cargar las instancias");
-        }
-
-        return instances;
+    public static Instances loadInstances(String path) throws Exception {
+        DataSource source = new DataSource(path);
+        return source.getDataSet();
     }
 
 
@@ -88,14 +72,15 @@ public class Utils {
             result.append("\n");
             result.append(stats);
             if (instances.attribute(i).isNumeric()) {
-                result.append("Max: " + instances.attributeStats(i).numericStats.max);
-                result.append("\n");
-                result.append("Min: " + instances.attributeStats(i).numericStats.min);
-                result.append("\n");
-                result.append("Mean: " + instances.attributeStats(i).numericStats.mean);
-                result.append("\n");
-                result.append("StdDev: " + instances.attributeStats(i).numericStats.stdDev);
-                result.append("\n");
+//                result.append("Max: " + instances.attributeStats(i).numericStats.max);
+//                result.append("\n");
+//                result.append("Min: " + instances.attributeStats(i).numericStats.min);
+//                result.append("\n");
+//                result.append("Mean: " + instances.attributeStats(i).numericStats.mean);
+//                result.append("\n");
+//                result.append("StdDev: " + instances.attributeStats(i).numericStats.stdDev);
+//                result.append("\n");
+                result.append("Stats:\n" + instances.attributeStats(i).numericStats);
             }
             result.append("\n");
         }
@@ -109,24 +94,12 @@ public class Utils {
      * @param instances
      * @return
      */
-    public static Instances filterAttributes(Instances instances) {
+    public static Instances filterAttributes(Instances instances) throws Exception {
         AttributeSelection filter = new AttributeSelection();
         filter.setEvaluator(new CfsSubsetEval()); // Correlation-based feature selection
         filter.setSearch(new BestFirst());
-        try {
-            filter.setInputFormat(instances);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Instances newData = null;
-        try {
-            newData = Filter.useFilter(instances, filter);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return newData;
+        filter.setInputFormat(instances);
+        return Filter.useFilter(instances, filter);
     }
 
 
