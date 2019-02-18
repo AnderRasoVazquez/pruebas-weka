@@ -3,12 +3,12 @@ package utils;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 
-import weka.core.Attribute;
-import weka.core.Instances;
-import weka.core.SerializationHelper;
+import weka.classifiers.lazy.IBk;
+import weka.core.*;
 import weka.core.converters.ConverterUtils.DataSink;
 import weka.core.converters.ConverterUtils.DataSource;
 
+import weka.core.neighboursearch.LinearNNSearch;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.filters.unsupervised.instance.Resample;
@@ -21,6 +21,8 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Random;
 
+import static weka.classifiers.lazy.IBk.*;
+
 public class Utils {
 
     /**
@@ -31,6 +33,32 @@ public class Utils {
     public static Instances loadInstances(String path) throws Exception {
         DataSource source = new DataSource(path);
         return source.getDataSet();
+    }
+
+
+    /**
+     * Devuelve el indice de la clase minoritaria.
+     * @param instances Instancias con la clase ya puesta.
+     * @return
+     */
+    public static int getMinoritaryNominalClassIndex(Instances instances){
+        int classIndex = instances.classIndex();
+        AttributeStats classStats = instances.attributeStats(classIndex);
+
+        int[] classFreqs = classStats.nominalCounts;
+        int minIndex = 0;
+        int minFreq = classFreqs[0];
+
+        int index = 0;
+        for(int freq: classFreqs) {
+            if (freq < minFreq) {
+                minFreq = freq;
+                minIndex = index;
+            }
+            index++;
+        }
+
+        return minIndex;
     }
 
 
@@ -296,5 +324,79 @@ public class Utils {
      */
     public static Classifier loadModel(String path) throws Exception {
         return (Classifier) SerializationHelper.read(path);
+    }
+
+    /**
+     * Calcula los mejores parametros para el KNN mediante fuerza bruta. Tarda muchisimo.
+     * @param instances
+     * @return
+     * @throws Exception
+     */
+    public static String manualSearchBestParamsKNN(Instances instances) throws Exception {
+        int minoritaryClassIndex = getMinoritaryNominalClassIndex(instances);
+        IBk cls;
+        int[] weigths = {WEIGHT_NONE, WEIGHT_INVERSE, WEIGHT_SIMILARITY};
+        DistanceFunction[] distances = {new ManhattanDistance(), new EuclideanDistance()};
+        Evaluation eval;
+        double bestFMeasure = 0;
+        int bestDistance = 0;
+        int bestK = 0;
+        int bestWeight = 0;
+
+        for(int k = 1; k < (int) (0.5 * instances.size()); k++){
+            for(int w = 0; w < weigths.length; w++){
+                for(int d = 0; d < distances.length; d++) {
+                    System.out.println("k: " + k);
+                    System.out.println("d: " + d);
+                    System.out.println("w: " + w);
+                    System.out.println();
+                    cls = new IBk(k);
+                    LinearNNSearch search = new LinearNNSearch();
+                    search.setDistanceFunction(distances[d]);
+                    cls.setNearestNeighbourSearchAlgorithm(search);
+                    cls.setDistanceWeighting(new SelectedTag(weigths[w], TAGS_WEIGHTING));
+                    eval = new Evaluation(instances);
+                    eval.crossValidateModel(cls, instances, 10, new Random(1));
+                    double currentFMeasure = eval.fMeasure(minoritaryClassIndex);
+                    if (currentFMeasure > bestFMeasure) {
+                        bestDistance = d;
+                        bestFMeasure = currentFMeasure;
+                        bestK = k;
+                        bestWeight = w;
+                    }
+                }
+            }
+        }
+
+        String textWeight = "";
+        switch (bestWeight) {
+            case 0: textWeight = "WEIGHT_NONE";
+                break;
+            case 1: textWeight = "WEIGHT_INVERSE";
+                break;
+            case 2: textWeight = "WEIGHT_SIMILARITY";
+                break;
+        }
+
+        String textDistance = "";
+        switch (bestDistance) {
+            case 0: textDistance = "EUCLIDEAN";
+                break;
+            case 1: textDistance = "MANHATTAN";
+                break;
+        }
+
+        String result = "";
+        result += "\n";
+        result += "BestDistance: " + textDistance;
+        result += "\n";
+        result += "BestK: " + bestK;
+        result += "\n";
+        result += "BestWeight: " + textWeight;
+        result += "\n";
+        result += "BestFmeasure: " + bestFMeasure;
+        result += "\n";
+        result += "\n";
+        return result;
     }
 }
