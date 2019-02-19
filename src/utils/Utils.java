@@ -380,9 +380,9 @@ public class Utils {
 
         String textDistance = "";
         switch (bestDistance) {
-            case 0: textDistance = "EUCLIDEAN";
+            case 0: textDistance = "Manhattan";
                 break;
-            case 1: textDistance = "MANHATTAN";
+            case 1: textDistance = "Euclidean";
                 break;
         }
 
