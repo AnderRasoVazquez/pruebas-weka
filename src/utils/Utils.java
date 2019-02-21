@@ -51,7 +51,7 @@ public class Utils {
 
         int index = 0;
         for(int freq: classFreqs) {
-            if (freq < minFreq) {
+            if (freq < minFreq && freq != 0) {
                 minFreq = freq;
                 minIndex = index;
             }
@@ -344,19 +344,22 @@ public class Utils {
         int bestWeight = 0;
 
         for(int k = 1; k < (int) (0.5 * instances.size()); k++){
+            cls = new IBk(k);
+
             for(int w = 0; w < weigths.length; w++){
+                cls.setDistanceWeighting(new SelectedTag(weigths[w], TAGS_WEIGHTING));
+
                 for(int d = 0; d < distances.length; d++) {
+                    cls.getNearestNeighbourSearchAlgorithm().setDistanceFunction(distances[d]);
+
                     System.out.println("k: " + k);
                     System.out.println("d: " + d);
                     System.out.println("w: " + w);
                     System.out.println();
-                    cls = new IBk(k);
-                    LinearNNSearch search = new LinearNNSearch();
-                    search.setDistanceFunction(distances[d]);
-                    cls.setNearestNeighbourSearchAlgorithm(search);
-                    cls.setDistanceWeighting(new SelectedTag(weigths[w], TAGS_WEIGHTING));
+
                     eval = new Evaluation(instances);
                     eval.crossValidateModel(cls, instances, 10, new Random(1));
+
                     double currentFMeasure = eval.fMeasure(minoritaryClassIndex);
                     if (currentFMeasure > bestFMeasure) {
                         bestDistance = d;
